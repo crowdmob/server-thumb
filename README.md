@@ -1,4 +1,4 @@
 Server Thumb
 ============
 
-A server-to-server Facebook Like Gem.
+A server to server Facebook Like gem.
