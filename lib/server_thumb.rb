@@ -2,15 +2,33 @@
 
 
 
+require 'cgi'
 require 'json'
 require 'net/http'
-require 'URI'
+
+begin
+  require 'URI'
+rescue LoadError
+end
 
 
 
 module ServerThumb
 
   FACEBOOK_GRAPH_BASE_URL = 'https://graph.facebook.com/'
+
+  def self.url_to_id(query_url)
+    query_string = CGI.escape("select url, id, type, site from object_url where url = \"#{query_url}\"").gsub('+', '%20')
+    url = FACEBOOK_GRAPH_BASE_URL + "fql?q=" + query_string
+    puts url
+
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = uri.scheme == 'https'
+    request = Net::HTTP::Get.new(uri.path)
+    response = http.request(request)
+    decoded_json = JSON.parse(response.body)
+  end
 
   def self.like(access_token, object_id)
     url = FACEBOOK_GRAPH_BASE_URL + object_id + '/og.likes'
